@@ -1,6 +1,6 @@
 package com.meki.play.util;
 
-import com.meki.play.pattern.Regex;
+import com.meki.play.util.pattern.Regex;
 
 import java.util.ArrayList;
 import java.util.List;
