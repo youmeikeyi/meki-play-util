@@ -1,6 +1,7 @@
 package com.meki.play.util;
 
-import com.meki.play.util.pattern.Regex;
+import com.meki.play.util.pattern.RegexBox;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,36 @@ import java.util.regex.Pattern;
  * Time: 9:56
  */
 public class StringBox {
+
+    private static String chinese = "[\u0391-\uFFE5]+";
+    private static Pattern chinesePattern = Pattern.compile(chinese);
+
+    /**
+     * 获取字符串的中文长度，向下取整
+     *
+     * @param value 指定的字符串
+     * @return 字符串的长度
+     */
+    public static int chineseLength(String value) {
+        if (StringUtils.isBlank(value))
+            return 0;
+        int valueLength = 0;
+
+        /* 获取字段值的长度，如果含中文字符，则每个中文字符长度为2，否则为1 */
+        for (int i = 0; i < value.length(); i++) {
+            /* 获取一个字符 */
+            String temp = value.substring(i, i + 1);
+            /* 判断是否为中文字符 */
+            if (chinesePattern.matcher(temp).matches()) {
+                /* 中文字符长度为2 */
+                valueLength += 2;
+            } else {
+                /* 其他字符长度为1 */
+                valueLength += 1;
+            }
+        }
+        return valueLength / 2;
+    }
 
     /**
      * 空格过滤，包含全角和半角空格
@@ -110,7 +141,7 @@ public class StringBox {
         if (StringBox.isEmpty(phone)) {
             return false;
         }
-        Pattern p = Pattern.compile(Regex.TELEPHONE);
+        Pattern p = Pattern.compile(RegexBox.TELEPHONE);
         Matcher m = p.matcher(phone.toLowerCase());
         return m.matches();
     }

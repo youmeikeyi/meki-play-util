@@ -1,6 +1,6 @@
 package com.meki.play.util.pattern;
 
-public class Regex {
+public class RegexBox {
 
     //一代身份证
     public static final String ID_CARD_VER1 = "^[1-9]\\d{7}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])\\d{3}$";
@@ -28,13 +28,13 @@ public class Regex {
 
     public static final String URL = "(http|https)://([\\w-_]+\\.)+[\\w-_]+(/[\\w-_ ./?%&=]*)?";
 
-    private Regex() {
+    private RegexBox() {
     }
 
     public static void main(String[] args) {
         String certNo = "42112519860514331x";
-        if (!certNo.matches(Regex.ID_CARD_VER2)
-                && !certNo.matches(Regex.ID_CARD_VER1))
+        if (!certNo.matches(RegexBox.ID_CARD_VER2)
+                && !certNo.matches(RegexBox.ID_CARD_VER1))
             throw new IllegalArgumentException("身份证号码填写有误，请重新输入");
         System.out.println("42112519860514331x".matches(ID_CARD_VER2));
     }
