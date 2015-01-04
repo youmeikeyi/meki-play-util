@@ -20,6 +20,8 @@ import org.apache.http.impl.client.*;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -431,24 +433,8 @@ public class HttpClientUtilTest {
     }
 
     public static void main(final String[] args) {
-        String result = doGetTest("http://www.p2pblack.com/index.htm?Page=1");
-        String tableData = getTable(result);
-        System.out.println("## begin");
-//        System.out.println(tableData);
-        List<String> list = new ArrayList<String>(20);
-        String[] data = tableData.split("\\s+");
-        for (String temp: data) {
-            list.add(temp);
-//            System.out.println(temp);
-        }
-        //去掉前面的无关信息
-        list = list.subList(9, list.size());
-        for (int index = 0; index < list.size() ; index ++) {
-            if (index % 8 == 0) {
-                System.out.println();
-            }
-            System.out.print(list.get(index) + ",");
-        }
+
+        System.out.println(validateIdCard("370828199012262011"));
 //        final String result = HttpClientUtilTest.get(js);
 //        final String result = HttpClientUtilTest.get("http://10.3.17.30:9527", paramMap);
 //        final String x = HttpClientUtilTest.doPost("http://10.3.17.30:9527",paramMap);
@@ -460,8 +446,101 @@ public class HttpClientUtilTest {
 //        test();
 
     }
+    public static String regIdCard = "^(^[1-9]\\d{7}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])\\d{3}$)|(^[1-9]\\d{5}[1-9]\\d{3}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])((\\d{4})|\\d{3}[Xx])$)$";
 
-    private static String getTable(final String s) {
+    public static Pattern IDCARD_PATTERN = Pattern.compile(regIdCard);
+    public static int MT[] = new int[100];
+
+    static {
+        for (int i = 11; i <= 15; i++) {
+            MT[i] = 1;
+        }
+        for (int i = 21; i <= 23; i++) {
+            MT[i] = 1;
+        }
+        for (int i = 31; i <= 37; i++) {
+            MT[i] = 1;
+        }
+        for (int i = 41; i <= 46; i++) {
+            MT[i] = 1;
+        }
+        for (int i = 50; i <= 54; i++) {
+            MT[i] = 1;
+        }
+        for (int i = 61; i <= 65; i++) {
+            MT[i] = 1;
+        }
+        MT[71] = 1;
+        MT[81] = 1;
+        MT[82] = 1;
+        MT[91] = 1;
+    }
+
+    public static boolean validateIdCard(String idCard) {
+        try {
+            if (idCard == null || idCard.length() == 0) {
+                return false;
+            }
+            int index = Integer.parseInt(idCard.substring(0, 2));
+            //地域信息
+            if (MT[index] == 0) {
+                return false;
+            }
+            Pattern p = IDCARD_PATTERN;
+            if (p.matcher(idCard).matches()) {
+                if (idCard.length() == 18) {
+                    int[] idCardWi = new int[] { 7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7,
+                            9, 10, 5, 8, 4, 2 };
+                    int[] idCardY = new int[] { 1, 0, 10, 9, 8, 7, 6, 5, 4, 3, 2 };
+                    int idCardWiSum = 0;
+                    for (int i = 0; i < 17; i++) {
+                        idCardWiSum += Integer.parseInt(idCard.substring(i, i + 1))
+                                * idCardWi[i];
+                    }
+                    int idCardMod = idCardWiSum % 11;
+                    char idCardLast = idCard.charAt(17);
+                    if (idCardMod == 2) {
+                        if (idCardLast == 'X' || idCardLast == 'x') {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        if (Integer.parseInt(idCardLast + "") == idCardY[idCardMod]) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                }
+            } else {
+                return false;
+            }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private static String getUl(String source){
+        String regex = "<ul>.*?</ul>";
+        String table = "";
+        final List<String> list = new ArrayList<String>();
+        final Pattern pa = Pattern.compile(regex, Pattern.CANON_EQ);
+        final Matcher ma = pa.matcher(source);
+        while (ma.find()) {
+            list.add(ma.group());
+        }
+        System.out.println("## size:" + list.size());
+        for (int i = 0; i < list.size(); i++) {
+            table = table + list.get(i);
+        }
+        System.out.println("## UL: " + table);
+        return outTag(table);
+    }
+
+    private static void getTable(final String s) {
         String regex = "<table.*?</table>";
         String table = "";
         final List<String> list = new ArrayList<String>();
@@ -475,7 +554,22 @@ public class HttpClientUtilTest {
             table = table + list.get(i);
         }
         System.out.println("## table: " + table);
-        return outTag(table);
+        String tableData =  outTag(table);
+        List<String> resultList = new ArrayList<String>(20);
+        String[] data = tableData.split("\\s+");
+        for (String temp: data) {
+            resultList.add(temp);
+//            System.out.println(temp);
+        }
+        //去掉前面的无关信息
+        resultList = resultList.subList(9, resultList.size());
+        for (int index = 0; index < resultList.size() ; index ++) {
+            if (index % 8 == 0) {
+                System.out.println();
+            }
+            System.out.print(resultList.get(index) + ",");
+        }
+
     }
 
     /**
