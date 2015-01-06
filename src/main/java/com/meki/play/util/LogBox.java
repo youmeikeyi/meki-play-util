@@ -8,6 +8,15 @@ package com.meki.play.util;
  */
 public class LogBox {
 
+    private LogBox(){}
+
+    private static LogBox logBox = new LogBox();
+    public static LogBox getInstance(){
+        if (logBox == null)
+            return  new LogBox();
+        return logBox;
+    }
+
     /**
      * 获取当前类名
      * 非static方法可使用
@@ -52,20 +61,22 @@ public class LogBox {
         StringBuffer sb = new StringBuffer();
         StackTraceElement[] stacks = new Throwable().getStackTrace();
         int stacksLen = stacks.length;
-        sb.append("class: " ).append(stacks[1].getClassName()).append("; method: ").append(stacks[1].getMethodName()).append("; number: ").append(stacks[1].getLineNumber());
-
+        sb.append("#Class: " ).append(stacks[1].getClassName())
+                .append("; Method: ").append(stacks[1].getMethodName())
+                .append("; Line: ").append(stacks[1].getLineNumber())
+                .append("; StackDepth:").append(stacksLen);
         return sb.toString();
     }
 
     public static void main(String[] args){
-        LogBox logBox = new LogBox();
+//        LogBox logBox = new LogBox();
 
         String clazz = Thread.currentThread().getStackTrace()[1].getClassName();
         String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
         int lineNumber = Thread.currentThread().getStackTrace()[1].getLineNumber();
         System.out.println("class:"+ clazz+",method:"+methodName+",lineNum:"+lineNumber);
 
-        System.out.println(logBox.getClassName());
+        System.out.println(LogBox.getInstance().getClassName());
         System.out.println(LogBox.getRuntimeClassName());
         System.out.println(LogBox.getRuntimeMethodName());
         System.out.println(LogBox.getRuntimeLineNumber());

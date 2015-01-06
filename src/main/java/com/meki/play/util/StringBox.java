@@ -1,6 +1,7 @@
 package com.meki.play.util;
 
 import com.meki.play.util.pattern.RegexBox;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -147,6 +148,7 @@ public class StringBox {
     }
 
     /**
+     * 按指定分隔符分割字符串
      * @param digitString 需要分割的string
      * @param separator   分隔符
      * @return List<Integer> 数字列表,任何错误结果都返回null
@@ -160,8 +162,8 @@ public class StringBox {
         try {
             String[] array = digitString.split(separator);
             List<Integer> intList = new ArrayList<Integer>();
-            for (int i = 0; i < array.length; i++) {
-                intList.add(Integer.parseInt(array[i]));
+            for (String item : array) {
+                intList.add(Integer.parseInt(item));
             }
             return intList;
         } catch (NumberFormatException e) {
@@ -170,25 +172,25 @@ public class StringBox {
 
     }
     /**
-     * StringUtil默认的字符串分隔符
+     * 默认的字符串分隔符
      */
-    public static final String default_separator = ",";
+    public static final String DEFAULT_SEPARATOR = ",";
 
-//    public static String str2String(List<String> target) {
-//        if (CollectionUtils.isEmpty(target)) {
-//            return null;
-//        }
-//        try {
-//            StringBuilder result = new StringBuilder();
-//            for (String str : target) {
-//                result.append(str);
-//                result.append(default_separator);
-//            }
-//            return result.substring(0, result.length() - 1);
-//        } catch (Exception e) {
-//            return null;
-//        }
-//    }
+    public static String str2String(List<String> target) {
+        if (CollectionUtils.isEmpty(target)) {
+            return null;
+        }
+        try {
+            StringBuilder result = new StringBuilder();
+            for (String str : target) {
+                result.append(str);
+                result.append(DEFAULT_SEPARATOR);
+            }
+            return result.substring(0, result.length() - 1);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
 
 

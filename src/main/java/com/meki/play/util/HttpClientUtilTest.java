@@ -433,8 +433,11 @@ public class HttpClientUtilTest {
     }
 
     public static void main(final String[] args) {
-
-        System.out.println(validateIdCard("370828199012262011"));
+        System.out.println(LogBox.getRuntimeClassName());
+        System.out.println(LogBox.getRuntimeMethodName());
+        System.out.println(LogBox.getInstance().getRuntimeLineNumber());
+        System.out.println(LogBox.getTraceInfo());
+//        System.out.println(validateIdCard("370828199012262011"));
 //        final String result = HttpClientUtilTest.get(js);
 //        final String result = HttpClientUtilTest.get("http://10.3.17.30:9527", paramMap);
 //        final String x = HttpClientUtilTest.doPost("http://10.3.17.30:9527",paramMap);
