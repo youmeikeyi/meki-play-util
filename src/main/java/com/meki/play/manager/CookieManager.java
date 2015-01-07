@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
  * cookie管理类
  */
 
-
 public class CookieManager {
     private static CookieManager instance;
 
