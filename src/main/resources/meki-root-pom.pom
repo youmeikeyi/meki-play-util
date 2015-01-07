@@ -105,7 +105,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<configuration>
-					<include>${project.build.sourceDirectory}</include>
+                    <includes>
+                        <include>${project.build.sourceDirectory}</include>
+                    </includes>
 				</configuration>
 				<executions>
 					<execution>

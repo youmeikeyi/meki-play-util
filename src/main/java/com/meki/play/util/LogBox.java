@@ -19,6 +19,7 @@ public class LogBox {
 
     /**
      * 获取当前类名
+     * 只会输出当前线程LogBox的，只能测试用
      * 非static方法可使用
      */
     public String getClassName(){
@@ -28,6 +29,7 @@ public class LogBox {
 
     /**
      * 获取实际运行的类名
+     * 只会输出当前线程LogBox的，只能测试用
      * @return
      */
     public static String getRuntimeClassName(){
@@ -37,6 +39,7 @@ public class LogBox {
 
     /**
      * 获取实际运行的方法名
+     * 只会输出当前线程LogBox的，只能测试用
      * @return
      */
     public static String getRuntimeMethodName(){
@@ -46,6 +49,7 @@ public class LogBox {
 
     /**
      * 获取实际运行时的行号
+     * 只会输出当前线程LogBox的，只能测试用
      * @return
      */
     public static int getRuntimeLineNumber(){
@@ -55,6 +59,7 @@ public class LogBox {
 
     /**
      * 获取栈跟踪信息
+     * 可使用
      * @return
      */
     public static String getTraceInfo(){
