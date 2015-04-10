@@ -69,6 +69,7 @@ public class StringBox {
         return s == null || trim(s).length() == 0;
     }
 
+
     /**
      * 判断字符串是否非空
      *
