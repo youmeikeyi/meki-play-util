@@ -10,13 +10,13 @@
 
     <context:component-scan base-package="com.meki.play.util"/>
 
-    <bean id="jedisConnFactory"
+    <!--<bean id="jedisConnFactory"
           class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
           p:use-pool="true"/>
 
-    <!-- redis template definition -->
+    &lt;!&ndash; redis template definition &ndash;&gt;
     <bean id="redisTemplate"
           class="org.springframework.data.redis.core.RedisTemplate"
-          p:connection-factory-ref="jedisConnFactory"/>
+          p:connection-factory-ref="jedisConnFactory"/>-->
 </beans>
 
