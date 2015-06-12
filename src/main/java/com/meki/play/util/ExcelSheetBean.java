@@ -3,10 +3,10 @@ package com.meki.play.util;
 import java.util.*;
 
 /**
- * Excel通用bean
+ * Excel Sheet存储对象
  * Created by xujinchao on 2015/6/9.
  */
-public class ExcelBean {
+public class ExcelSheetBean {
 
     private final static String DEFAULT_COLUMN_NAME = "col";
 
@@ -14,9 +14,18 @@ public class ExcelBean {
 
     private static int DEFAULT_NUMBER = 10;
 
+    private String sheetName;
     private int number = DEFAULT_NUMBER;//行的个数
     private List<String> columnKeys = defaultKeys;//key的list
     private Map<Integer, Map<String, String>> columnMap = new HashMap<Integer, Map<String, String>>();   //key-value的map
+
+    public String getSheetName() {
+        return sheetName;
+    }
+
+    public void setSheetName(String sheetName) {
+        this.sheetName = sheetName;
+    }
 
     public int getNumber() {
         return number;
@@ -34,11 +43,11 @@ public class ExcelBean {
         this.columnKeys = columnKeys;
     }
 
-    public Map getColumnMap() {
+    public Map<Integer, Map<String, String>> getColumnMap() {
         return columnMap;
     }
 
-    public void setColumnMap(Map columnMap) {
+    public void setColumnMap(Map<Integer, Map<String, String>> columnMap) {
         this.columnMap = columnMap;
     }
 
@@ -56,14 +65,11 @@ public class ExcelBean {
     @Override
     public String toString() {
         return "ExcelBean{" +
-                "number=" + number +
+                "sheetName=" + sheetName +
+                ", number=" + number +
+                ", columnMap size=" + columnMap.size() +
                 ", columnMap=" + columnMap +
 //                ", columnKeys=" + columnKeys +
-                ", columnMap size=" + columnMap.size() +
                 '}';
-    }
-
-    class ExcelRowBean{
-
     }
 }

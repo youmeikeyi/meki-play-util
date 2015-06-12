@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Excel工具类
@@ -55,7 +57,7 @@ public class ExcelUtil {
      * @return
      * @throws java.io.IOException
      */
-    public static List<ExcelBean> readExcel(String path) throws IOException {
+    public static List<ExcelSheetBean> readExcel(String path) throws IOException {
         //检查路径合法性
         String postfix = getPostfix(path);
         if (!EMPTY.equals(postfix)) {
@@ -115,53 +117,26 @@ public class ExcelUtil {
      * @return
      * @throws IOException
      */
-    public static List<ExcelBean> readXls(String path) throws IOException {
+    public static List<ExcelSheetBean> readXls(String path) throws IOException {
         System.out.println(PROCESSING + path);
         InputStream is = new FileInputStream(path);
         HSSFWorkbook hssfWorkbook = new HSSFWorkbook(is);
-        ExcelBean bean = null;
-        List<ExcelBean> list = new ArrayList<ExcelBean>();
+        ExcelSheetBean sheetBean = null;
+        List<ExcelSheetBean> sheetList = new ArrayList<ExcelSheetBean>();
         // Read the Sheet
         for (int numSheet = 0; numSheet < hssfWorkbook.getNumberOfSheets(); numSheet++) {
             HSSFSheet hssfSheet = hssfWorkbook.getSheetAt(numSheet);
             if (hssfSheet == null) {
                 continue;
             }
-            bean = new ExcelBean();
-            int rowNumber = hssfSheet.getPhysicalNumberOfRows();
-            bean.setNumber(rowNumber);
+            sheetBean = getSheetByNumber(hssfWorkbook, numSheet);
+            sheetList.add(sheetBean);
 
-            HSSFRow hssfRow = hssfSheet.getRow(hssfSheet.getFirstRowNum());
-            int start = hssfRow.getFirstCellNum();
-            //注意 end从1计算 相当于length
-            int end = hssfRow.getLastCellNum();
-            System.out.println("start:" + start + ", end:" + end);
-            //列名
-            List<String> columnNames = getTitleList(hssfRow, start, end);
-            if (!columnNames.isEmpty()) {
-                bean.setColumnKeys(columnNames);
-            }
-
-            HSSFCell cell = null;
-            // Read the Row
-            for (int rowNum = 1; rowNum <= hssfSheet.getLastRowNum(); rowNum++) {
-                hssfRow = hssfSheet.getRow(rowNum);
-
-                if (hssfRow != null) {
-                    for (int i = start; i < end; i++) {
-                        cell = hssfRow.getCell(i);
-                        if (bean.getColumnKeys().get(i) != null && cell != null) {
-                            bean.getColumnMap().put(bean.getColumnKeys().get(i), getValue(cell));
-                        }
-                    }
-                    System.out.println(bean);
-                    list.add(bean);
-                }
-            }
             System.out.println();
-            System.out.println(list);
+            System.out.println(sheetList);
+            System.out.println(sheetList.size());
         }
-        return list;
+        return sheetList;
     }
 
     /**
@@ -179,6 +154,14 @@ public class ExcelUtil {
         return getTitleList(hssfRow, hssfRow.getFirstCellNum(), hssfRow.getLastCellNum());
     }
 
+    /**
+     * 获取标题栏
+     * 默认start为0，end为总列数
+     * @param firstRow
+     * @param start
+     * @param end
+     * @return
+     */
     private static List<String> getTitleList(HSSFRow firstRow, int start, int end) {
         List<String> titles = new ArrayList<String>(end);
         HSSFCell cell = null;
@@ -189,6 +172,51 @@ public class ExcelUtil {
         }
         return titles;
     }
+
+    /**
+     * 根据sheet编号获取一个Sheet
+     * @param hssfWorkbook
+     * @param sheetNum
+     * @return
+     */
+    public static ExcelSheetBean getSheetByNumber(HSSFWorkbook hssfWorkbook, int sheetNum){
+        ExcelSheetBean sheetBean = new ExcelSheetBean();
+        HSSFSheet hssfSheet = hssfWorkbook.getSheetAt(sheetNum);
+        if (hssfSheet == null) {
+            return new ExcelSheetBean();
+        }
+
+        int rowNumber = hssfSheet.getPhysicalNumberOfRows();
+        sheetBean.setNumber(rowNumber);
+        sheetBean.setSheetName(hssfSheet.getSheetName());
+        List<String> columnNames = getTitleListInSheet(hssfWorkbook, hssfSheet.getFirstRowNum());
+        if (!columnNames.isEmpty()) {
+            sheetBean.setColumnKeys(columnNames);
+        }
+//            int start = hssfRow.getFirstCellNum();
+//            //注意 end从1计算 相当于length
+//            int end = hssfRow.getLastCellNum();
+        HSSFRow hssfRow = null;
+        HSSFCell cell = null;
+        // Read the Row
+        Map<String, String> rowMap = null;
+        for (int rowNum = 1; rowNum <= hssfSheet.getLastRowNum(); rowNum++) {
+            hssfRow = hssfSheet.getRow(rowNum);
+            rowMap = new HashMap<String, String>();
+            if (hssfRow != null) {
+                for (int i = hssfRow.getFirstCellNum(); i < hssfRow.getLastCellNum(); i++) {
+                    cell = hssfRow.getCell(i);
+                    if (sheetBean.getColumnKeys().get(i) != null && cell != null) {
+                        rowMap.put(sheetBean.getColumnKeys().get(i), getValue(cell));
+                    }
+                }
+                sheetBean.getColumnMap().put(rowNum, rowMap);
+                System.out.println(sheetBean);
+            }
+        }
+        return sheetBean;
+    }
+
 
     @SuppressWarnings("static-access")
     private static String getValue(XSSFCell xssfRow) {
