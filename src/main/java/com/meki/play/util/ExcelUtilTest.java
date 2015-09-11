@@ -8,12 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
 import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +23,7 @@ import java.util.List;
 public class ExcelUtilTest {
     public static final String DEFAULT_DIR = "E:\\mywork\\temp\\";
 
+    public static final String TARGET_FILE = "0917资料片更新内容.xlsx";
     public static final String OFFICE_EXCEL_2003_POSTFIX = "xls";
     public static final String OFFICE_EXCEL_2010_POSTFIX = "xlsx";
 
@@ -202,7 +198,7 @@ public class ExcelUtilTest {
         try {
 //            testCreate();
 //            testRead();
-            List<Student> list = readExcel(DEFAULT_DIR + "input.xls");
+            List<Student> list = readExcel(DEFAULT_DIR + TARGET_FILE);
             System.out.println(list);
         } catch (Exception e) {
             e.printStackTrace();

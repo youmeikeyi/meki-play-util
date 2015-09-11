@@ -1,11 +1,5 @@
 package com.meki.play.util;
 
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 /**
  * Created by xujinchao on 2015/6/9.
  */

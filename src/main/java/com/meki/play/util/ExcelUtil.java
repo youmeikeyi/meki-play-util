@@ -13,10 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Excel工具类
@@ -25,6 +22,13 @@ import java.util.Map;
 public class ExcelUtil {
     public static final String DEFAULT_DIR = "E:\\mywork\\temp\\";
 
+    public static final String TARGET_FILE = "0917资料片更新内容.xlsx";
+
+    //有新的服务器  加上
+    public static final List<String> filterNames = Arrays.asList("吴攀亮", "李洁", "蔡佳何","许金超" ,
+            "康超", "张汝彬", "张宇");
+    public static String filterKey = "程序";
+    public static String targetKey = "BUG列表";
     public static final String OFFICE_EXCEL_2003_POSTFIX = "xls";
     public static final String OFFICE_EXCEL_2010_POSTFIX = "xlsx";
 
@@ -64,7 +68,7 @@ public class ExcelUtil {
             if (OFFICE_EXCEL_2003_POSTFIX.equals(postfix)) {
                 return readXls(path);
             } else if (OFFICE_EXCEL_2010_POSTFIX.equals(postfix)) {
-//                return readXlsx(path);
+                return readXlsx(path);
             }
         }
         System.out.println(path + " is not Excel format!");
@@ -78,36 +82,26 @@ public class ExcelUtil {
      * @return
      * @throws IOException
      */
-    public static List<Student> readXlsx(String path) throws IOException {
+    public static List<ExcelSheetBean> readXlsx(String path) throws IOException {
         System.out.println(PROCESSING + path);
         InputStream is = new FileInputStream(path);
         XSSFWorkbook xssfWorkbook = new XSSFWorkbook(is);
-        Student student = null;
-        List<Student> list = new ArrayList<Student>();
+
+        ExcelSheetBean sheetBean = null;
+        List<ExcelSheetBean> sheetList = new ArrayList<ExcelSheetBean>();
         // Read the Sheet
-        for (int numSheet = 0; numSheet < xssfWorkbook.getNumberOfSheets(); numSheet++) {
-            XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(numSheet);
+//        for (int numSheet = 0; numSheet < xssfWorkbook.getNumberOfSheets(); numSheet++) {
+            XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(0);
             if (xssfSheet == null) {
-                continue;
+                return sheetList;
             }
-            // Read the Row
-            for (int rowNum = 1; rowNum <= xssfSheet.getLastRowNum(); rowNum++) {
-                XSSFRow xssfRow = xssfSheet.getRow(rowNum);
-                if (xssfRow != null) {
-                    student = new Student();
-                    XSSFCell no = xssfRow.getCell(0);
-                    XSSFCell name = xssfRow.getCell(1);
-                    XSSFCell age = xssfRow.getCell(2);
-                    XSSFCell score = xssfRow.getCell(3);
-                    student.setNo(getValue(no));
-                    student.setName(getValue(name));
-                    student.setAge(getValue(age));
-                    student.setScore(Float.valueOf(getValue(score)));
-                    list.add(student);
-                }
-            }
-        }
-        return list;
+            sheetBean = getXssfSheetByNumber(xssfWorkbook, 0);
+            sheetList.add(sheetBean);
+
+            System.out.println();
+//            System.out.println(sheetList.size());
+//        }
+        return sheetList;
     }
 
     /**
@@ -154,6 +148,7 @@ public class ExcelUtil {
         return getTitleList(hssfRow, hssfRow.getFirstCellNum(), hssfRow.getLastCellNum());
     }
 
+
     /**
      * 获取标题栏
      * 默认start为0，end为总列数
@@ -165,6 +160,41 @@ public class ExcelUtil {
     private static List<String> getTitleList(HSSFRow firstRow, int start, int end) {
         List<String> titles = new ArrayList<String>(end);
         HSSFCell cell = null;
+        for (int i = start; i < end; i ++) {
+            cell = firstRow.getCell(i);
+            titles.add(cell.getRichStringCellValue().toString());
+            System.out.println("titles add :" + cell.getRichStringCellValue().toString());
+        }
+        return titles;
+    }
+
+    /**
+     * 获取某sheet的标题列表（第一行）
+     * @param hssfWorkbook
+     * @param sheetNum
+     * @return
+     */
+    private static List<String> getTitleListInXssfSheet(XSSFWorkbook hssfWorkbook, int sheetNum){
+        XSSFSheet hssfSheet = hssfWorkbook.getSheetAt(sheetNum);
+        if (hssfSheet == null) {
+            return new ArrayList<String>();
+        }
+        XSSFRow hssfRow = hssfSheet.getRow(hssfSheet.getFirstRowNum());
+        return getXssfTitleList(hssfRow, hssfRow.getFirstCellNum(), hssfRow.getLastCellNum());
+    }
+
+
+    /**
+     * 获取标题栏
+     * 默认start为0，end为总列数
+     * @param firstRow
+     * @param start
+     * @param end
+     * @return
+     */
+    private static List<String> getXssfTitleList(XSSFRow firstRow, int start, int end) {
+        List<String> titles = new ArrayList<String>(end);
+        XSSFCell cell = null;
         for (int i = start; i < end; i ++) {
             cell = firstRow.getCell(i);
             titles.add(cell.getRichStringCellValue().toString());
@@ -214,9 +244,57 @@ public class ExcelUtil {
                 System.out.println(sheetBean);
             }
         }
+
         return sheetBean;
     }
 
+    /**
+     * 根据sheet编号获取一个Sheet
+     * @param xssfWorkbook
+     * @param sheetNum
+     * @return
+     */
+    public static ExcelSheetBean getXssfSheetByNumber(XSSFWorkbook xssfWorkbook, int sheetNum){
+        ExcelSheetBean sheetBean = new ExcelSheetBean();
+
+        XSSFSheet xssfSheet = xssfWorkbook.getSheetAt(sheetNum);
+        if (xssfSheet == null) {
+            return new ExcelSheetBean();
+        }
+
+        int rowNumber = xssfSheet.getPhysicalNumberOfRows();
+        sheetBean.setNumber(rowNumber);
+//        System.out.println("xssfSheet.getPhysicalNumberOfRows():" + xssfSheet.getPhysicalNumberOfRows());
+//        System.out.println("xssfSheet.getLastRowNum():" + xssfSheet.getLastRowNum());
+        sheetBean.setSheetName(xssfSheet.getSheetName());
+        List<String> columnNames = getTitleListInXssfSheet(xssfWorkbook, xssfSheet.getFirstRowNum());
+        if (!columnNames.isEmpty()) {
+//            System.out.println(columnNames.size());
+//            System.out.println("lastRowNum:" +xssfSheet.getLastRowNum());
+            sheetBean.setColumnKeys(columnNames);
+        }
+
+        XSSFRow xssfRow = null;
+        XSSFCell cell = null;
+        // Read the Row
+        Map<String, String> rowMap = null;
+        for (int rowNum = 1; rowNum <= xssfSheet.getLastRowNum(); rowNum++) {
+            xssfRow = xssfSheet.getRow(rowNum);
+            rowMap = new HashMap<String, String>();
+            if (xssfRow != null) {
+                for (int i = xssfRow.getFirstCellNum(); i < sheetBean.getColumnKeys().size(); i++) {
+                    cell = xssfRow.getCell(i);
+                    if (sheetBean.getColumnKeys().size() >= i
+                            &&sheetBean.getColumnKeys().get(i) != null && cell !=null) {
+                        rowMap.put(sheetBean.getColumnKeys().get(i), getValue(cell));
+                    }
+                }
+                sheetBean.getColumnMap().put(rowNum, rowMap);
+//                System.out.println(sheetBean);
+            }
+        }
+        return sheetBean;
+    }
 
     @SuppressWarnings("static-access")
     private static String getValue(XSSFCell xssfRow) {
@@ -247,7 +325,30 @@ public class ExcelUtil {
 
     public static void main(String[] args) {
         try {
-            ExcelUtil.readExcel(DEFAULT_DIR + "input.xls");
+            List<ExcelSheetBean> sheetBeanList = ExcelUtil.readExcel(DEFAULT_DIR + TARGET_FILE);
+            List<String> bugList = new ArrayList<String>();
+
+            for (ExcelSheetBean sheetBean : sheetBeanList) {
+                Map<String, String> tempMap = new HashMap<String, String>();
+                for (Integer key : sheetBean.getColumnMap().keySet()) {//key其实就是rowID
+                    tempMap = sheetBean.getColumnMap().get(key);
+                    for (Map.Entry<String, String> entry : tempMap.entrySet()) {
+                        if (entry.getKey().contains(filterKey)
+                                && filterNames.contains(entry.getValue())) {
+                            bugList.add(tempMap.get(targetKey));
+                        }
+                    }
+
+                }
+            }
+
+            StringBuilder builder = new StringBuilder();
+            for (String bug : bugList) {
+                bug = bug.replaceFirst(" ", "");
+                builder.append(bug.substring(0, bug.indexOf("【")));
+                builder.append("|");
+            }
+            System.out.println(builder.substring(0, builder.length() - 1));
         } catch (IOException e) {
             e.printStackTrace();
         }
