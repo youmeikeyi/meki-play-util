@@ -91,6 +91,9 @@ public class Test {
 //        time = 1434470401127L;
 //        Date date = new Date(time);
 //        System.out.println(date);
+        long time = 548143000;
+        int convert = (int) time/ (1000 * 60) * 5 / 2;
+        System.out.println(convert);
     }
 
 }

@@ -15,7 +15,7 @@ public class ExcelSheetBean {
     private static int DEFAULT_NUMBER = 7;
 
     private String sheetName;
-    private int number = DEFAULT_NUMBER;//列的个数
+    private int number = DEFAULT_NUMBER;//行的个数
     private List<String> columnKeys = defaultKeys;//key的list
     private Map<Integer, Map<String, String>> columnMap = new HashMap<Integer, Map<String, String>>();   //key-value的map
 
